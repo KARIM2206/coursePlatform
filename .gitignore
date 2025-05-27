@@ -1,0 +1,22 @@
+git add .gitignore# node_modules (مكتبات npm)
+node_modules/
+
+# .env (بيانات حساسة زي MONGO_URL)
+.env
+
+# logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# backup folders or exports
+backup/
+
+# optional for VSCode users
+.vscode/
