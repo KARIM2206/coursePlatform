@@ -1,0 +1,46 @@
+{
+  "header": { "siteName": "Courses Hub",
+  "courses": "Courses",
+  "about": "About",
+  "instructors": "Instructors",
+  "blog": "Blog",
+  "contact": "Contact",
+  "login": "Login",
+  "register": "Register",
+    "dashboard": "Dashboard",
+    "logout": "Logout",
+    "profile": "Profile"
+  },
+   "signup": {
+    "title": "Sign Up",
+    "name": "Name",
+      "dashboard": "Dashboard",
+    "logout": "Logout",
+    "namePlaceholder": "Enter username",
+    "email": "Email",
+    "emailPlaceholder": "Enter email",
+    "password": "Password",
+    "passwordPlaceholder": "Enter password",
+    "showPassword": "Show",
+    "hidePassword": "hide",
+    "selectRole": "Select role",
+    "student":"student",
+    "teacher":"teacher",
+    "submit": "Sign Up",
+    "alreadyHaveAccount": "Already have an account?",
+    "noAcount": "Don't have an account?",
+    "register": "Register",
+    "login": "Login"
+  },
+  "createCourse": {
+    "title": "Create Course",
+    "courseName": "Course Name",
+    "courseNamePlaceholder": "Enter course name",
+    "courseDescription": "Course Description",
+    "courseDescriptionPlaceholder": "Enter course description",
+    "courseImage": "Course Image",
+    "selectImage": "Select Image",
+    "createCourseButton": "Create Course",
+    "errorMessage": "Please fill in all fields."
+  }
+}

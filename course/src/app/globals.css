@@ -1,0 +1,160 @@
+/* @import "tailwindcss"; */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer 
+base
+ {
+  *, *::before, *::after {
+    
+box-sizing
+: border-box;
+  }
+
+  * {
+    
+margin
+: 0;
+    
+padding
+: 0;
+    
+box-sizing
+: border-box;
+  }
+
+  html {
+    
+font-family
+: sans-serif;
+    /* color: #333; */
+  }
+}
+:root {
+  /* Primary Colors */
+  --secondary-600: #2C6E49; /* Deep green for secondary actions (e.g., buttons, active states) */
+  --secondary-700: #255C3D; /* Darker green for hover states */
+  --secondary-100: #E6F0EA; /* Light green for backgrounds or subtle highlights */
+
+  /* Secondary Colors */
+  --primary-600: #4A90E2; /* Blue for primary actions or highlights */
+  --primary-700: #3A78C2; /* Darker blue for hover states */
+  --primary-50: #d8eafd; /* light blue for hover states */
+  --primary-100: #E5F2FD; /* Very light blue for backgrounds or subtle highlights */
+  /* Neutral Colors */
+  --neutral-900: #1A202C; /* Dark gray for text */
+  --neutral-700: #4A5568; /* Medium gray for secondary text */
+  --neutral-200: #EDF2F7; /* Light gray for backgrounds */
+  --neutral-100: #F7FAFC; /* Very light gray for alternate backgrounds */
+  --white: #FFFFFF; /* Pure white for backgrounds and text */
+
+  /* Accent Colors */
+  --accent-600: #F6AD55; /* Warm accent for highlights or callouts */
+}
+
+/* ===== Custom Colors Classes ===== */
+
+/* Primary Colors */
+.bg-primary-600 { background-color: var(--primary-600); }
+.bg-primary-700 { background-color: var(--primary-700); }
+.bg-primary-100 { background-color: var(--primary-100); }
+.bg-primary-50 { background-color: var(--primary-50); }
+
+.text-primary-600 { color: var(--primary-600); }
+.text-primary-700 { color: var(--primary-700); }
+.text-primary-100 { color: var(--primary-100); }
+
+/* Secondary Colors */
+.bg-secondary-600 { background-color: var(--secondary-600); }
+.bg-secondary-50 { background-color: var(--secondary-50); }
+.bg-secondary-700 { background-color: var(--secondary-700); }
+
+.text-secondary-600 { color: var(--secondary-600); }
+.text-secondary-700 { color: var(--secondary-700); }
+
+/* Neutral Colors */
+.bg-neutral-900 { background-color: var(--neutral-900); }
+.bg-neutral-700 { background-color: var(--neutral-700); }
+.bg-neutral-200 { background-color: var(--neutral-200); }
+.bg-neutral-100 { background-color: var(--neutral-100); }
+.bg-white        { background-color: var(--white); }
+
+.text-neutral-900 { color: var(--neutral-900); }
+.text-neutral-700 { color: var(--neutral-700); }
+.text-neutral-200 { color: var(--neutral-200); }
+.text-neutral-100 { color: var(--neutral-100); }
+.text-white        { color: var(--white); }
+
+/* Accent Colors */
+.bg-accent-600 { background-color: var(--accent-600); }
+.text-accent-600 { color: var(--accent-600); }
+
+/* Reset default margins and paddings */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Base styles for body */
+body {
+  font-family: 'Inter', sans-serif; /* Modern, clean font */
+  color: var(--neutral-900);
+  background-color: var(--neutral-100);
+}
+
+/* Smooth transitions for interactive elements */
+a, button {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Slide-down animation for mobile menu */
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-down {
+  animation: slide-down 0.3s ease-out;
+}
+.header-container {
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto;
+}
+.padding-x {
+  padding-left: 1rem;
+  padding-right: 1rem;
+} 
+.padding-y{
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+.padding-input{
+  padding-left: 0.5rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  padding-right: 0.5rem;
+}
+.padding-top{
+  padding-top: 4rem
+}
+.gap{
+gap:1rem
+}
+.padding-global {
+  padding: 1.25rem; /* يعادل p-5 في Tailwind */
+}
+
+@media (min-width: 768px) {
+  .padding-global {
+    padding: 2rem; /* يعادل p-8 في Tailwind */
+  }
+}

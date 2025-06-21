@@ -1,0 +1,49 @@
+{
+  "header": {
+    "siteName": "مركز الكورسات",
+    "courses": "الكورسات",
+    "about": "من نحن",
+    "instructors": "المدرسين",
+    "blog": "المدونة",
+    "contact": "اتصل بنا",
+    "login": "تسجيل دخول",
+    "register": "تسجيل حساب"
+    ,
+    "profile": "الملف الشخصي",
+    "dashboard":"لوحة التحكم",
+    "logout":"تسجيل الخروج"
+  },
+  "signup": {
+        "dashboard":"لوحة التحكم",
+    "logout":"تسجيل الخروج",
+
+    "title": "تسجيل حساب جديد",
+    "name": "الاسم",
+    "namePlaceholder": "أدخل اسم المستخدم",
+    "email": "البريد الإلكتروني",
+    "emailPlaceholder": "أدخل البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "passwordPlaceholder": "أدخل كلمة المرور",
+    "showPassword": "إظهار",
+    "hidePassword": "أخفاء",
+    "selectRole": "اختر الدور",
+    "submit": "تسجيل",
+    "alreadyHaveAccount": "هل لديك حساب بالفعل؟",
+    "noAcount": " لا يوجد حساب؟",
+    "register": "تسجيل حساب",
+    "login": "تسجيل الدخول",
+    "student":"طالب",
+    "teacher":"مدرس"
+  },
+  "createCourse": {
+    "title": "إنشاء كورس",
+    "courseName": "اسم الكورس",
+    "courseNamePlaceholder": "أدخل اسم الكورس",
+    "courseDescription": "وصف الكورس",
+    "courseDescriptionPlaceholder": "أدخل وصف الكورس",
+    "courseImage": "صورة الكورس",
+    "selectImage": "اختر صورة",
+    "createCourseButton": "إنشاء كورس",
+    "errorMessage": "يرجى ملء جميع الحقول."
+  }
+}
