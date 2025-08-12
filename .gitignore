@@ -11,3 +11,11 @@ yarn-error.log*
 
 # Editor
 .vscode/
+# Ignore uploaded media files
+api/uploads/courses/
+api/uploads/usersAvatar/
+
+# Ignore specific files
+course/public/download.jpeg
+course/public/download.png
+
