@@ -1,21 +1,25 @@
 'use client';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useContext, useEffect, useState } from 'react';
 import LanguageSwitcher from './languegeHandler';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Context } from '../CONTEXT/ContextProvider';
-import { FiMenu, FiX, FiHome, FiLogOut, FiUser, FiBook, FiInfo, FiUsers, FiMessageSquare } from 'react-icons/fi';
+import { FiMenu, FiX, FiHome, FiLogOut, FiUser, FiBook, FiInfo, FiUsers, FiMessageSquare, FiShoppingCart, FiLogIn } from 'react-icons/fi';
+import { Search } from 'lucide-react';
+import SearchBar from './SearchBar';
+import { Link as ScrollLink } from "react-scroll";
+
 
 export default function Header({ dict, locale }) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user, token, fetchUser, refresh } = useContext(Context);
+  const { user, token, fetchUser, refresh,cart,logout } = useContext(Context);
   const [avatarPreview, setAvatarPreview] = useState('/logo.jpg');
   const [loading, setLoading] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-
+const router = useRouter()
   // Handle scroll effect for header
   useEffect(() => {
     const handleScroll = () => {
@@ -47,6 +51,9 @@ export default function Header({ dict, locale }) {
     }
   }, [user]);
 
+      console.log('Cart updated:', cart);
+      
+
   const addLocaleToPath = (path) => {
     if (!locale) return path;
     if (!path.startsWith('/')) path = '/' + path;
@@ -56,15 +63,23 @@ export default function Header({ dict, locale }) {
     return `/${locale}${path}`;
   };
 
+const addLocaleToPathWithHash = (fullPath) => {
+  // تقسيم الرابط ل path و hash
+  const [pathPart, hashPart] = fullPath.split('#');
+
+  // تطبيق دالتك الأصلية على ال path فقط
+  let localizedPath = addLocaleToPath(pathPart);
+
+  // إعادة تجميع ال path مع ال hash (لو موجود)
+  return hashPart ? `${localizedPath}#${hashPart}` : localizedPath;
+};
 
   // Navigation items with icons
-  const navItems = [
-    { key: 'courses', icon: <FiBook className="mr-1" /> },
-    { key: 'about', icon: <FiInfo className="mr-1" /> },
-    { key: 'instructors', icon: <FiUsers className="mr-1" /> },
-    { key: 'blog', icon: <FiMessageSquare className="mr-1" /> },
-    { key: 'contact', icon: <FiMessageSquare className="mr-1" /> }
-  ];
+ const navItems = [
+  { name:'courses',key: 'list', icon: <FiBook className="mr-1" /> },
+  { name:'about',key: 'about', icon: <FiInfo className="mr-1" /> },
+  { name:'contact',key: 'contact', icon: <FiMessageSquare className="mr-1" /> }
+];
 
   return (
     <header
@@ -72,40 +87,57 @@ export default function Header({ dict, locale }) {
     isScrolled ? 'shadow-md' : 'shadow-sm'
   }`}
 >
-  <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-screen-2xl overflow-hidden">
+  <div className="mx-auto px-8 md:px-4 sm:px-6 lg:px-8 max-w-screen-2xl ">
     <div className="flex h-16 items-center justify-between w-full">
       {/* Logo Section */}
-      <div className="flex items-center gap-3 flex-shrink-0">
-        <Link href={addLocaleToPath('/')} className="flex items-center">
+      <div className="flex items-center relative  flex-shrink-0">
+        <Link href={addLocaleToPath('/')} className="flex md:w-10 md:h-10 w-8 h-8  releative items-center">
           <Image
             src="/logo.jpg"
-            width={40}
-            height={40}
+           fill
             alt="Logo"
-            className="rounded-lg w-10 h-10 object-cover"
+            className="rounded-lg md:w-10 md:h-10 w-8 h-8 absolute left-0 top-0 object-cover"
           />
-          <span className="ml-3 text-xl font-bold text-gray-900 hidden sm:block truncate">
+          <span className="ml-3  text-xl font-bold text-gray-900 hidden sm:block truncate">
             {dict.siteName}
           </span>
         </Link>
       </div>
 
       {/* Desktop Navigation */}
-      <nav className="hidden md:flex items-center space-x-6 flex-shrink">
-        {navItems.map((item) => (
-          <Link
-            key={item.key}
-            href={addLocaleToPath(`/${item.key}`)}
-            className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium flex items-center transition-colors"
-          >
-            {item.icon}
-            {dict[item.key]}
-          </Link>
-        ))}
-      </nav>
+<nav className="hidden lg:flex items-center space-x-6 flex-shrink">
+  {navItems.map((item) => (
+  <ScrollLink
+  key={item.key}
+  to={item.key} // لازم الـ id يكون "courses" أو أي اسم مطابق
+  smooth={true}
+  duration={800}
+  offset={-160}
+  activeClass="text-blue-500"
+  spy={true}
+  className="text-gray-700 cursor-pointer hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium flex items-center transition-colors"
+>
+  {item.icon}
+  {dict[item.name]}
+</ScrollLink>
 
+  ))}
+</nav>
+
+
+    <SearchBar />
    {/* Desktop Actions */}
 <div className="hidden md:flex items-center space-x-4 flex-shrink-0" style={{ overflow: 'visible' }}>
+ <div
+  className="relative cursor-pointer"
+  onClick={() => router.push(`${addLocaleToPath('/cart')}`)}
+>
+  <FiShoppingCart className="h-8 w-8 text-blue-600" />
+  <span className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 rounded-full text-center text-white" >
+    {cart?.length || 0}
+    </span>
+</div>
+
   <LanguageSwitcher />
 
   {token ? (
@@ -133,22 +165,44 @@ export default function Header({ dict, locale }) {
             )}
           </div>
         </Link>
-        <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 origin-top-right z-50"
+        <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1 opacity-0
+         invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 origin-top-right z-50"
           style={{ overflow: 'visible' }}>
-          <Link
-            href={addLocaleToPath('/profile')}
+            
+            {
+              token ?(
+                <Link
+                  href={user?.role=='teacher'?addLocaleToPath('/dashboard'):addLocaleToPath('/student')}
+                  className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                >
+                  <FiHome className="mr-2" />
+                  {dict.dashboard}
+                </Link>
+              ):
+              (
+                <Link
+                  href={addLocaleToPath('/register')}
+                  className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                >
+                  <FiLogIn className="mr-2" />
+                  {dict.register}
+                </Link>
+              )
+            }
+  {     !token?   <Link
+            href={ addLocaleToPath('/login')}
             className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
           >
-            <FiUser className="mr-2" />
-            {dict.register}
+            <FiLogIn className="mr-2" />
+            {dict.login}
           </Link>
-          <Link
-            href={addLocaleToPath('/logout')}
-            className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+         : <button
+           onClick={logout}
+            className="px-4 py-2 text-sm text-gray-700 w-full hover:bg-gray-100 flex items-center"
           >
             <FiLogOut className="mr-2 bg-black" />
             {dict.logout}
-          </Link>
+          </button>}
         </div>
       </div>
     </>
@@ -168,10 +222,11 @@ export default function Header({ dict, locale }) {
       </Link>
     </>
   )}
+
 </div>
 
       {/* Mobile Menu Button */}
-      <div className="md:hidden flex items-center flex-shrink-0">
+      <div className="md:hidden flex items-center ">
         <LanguageSwitcher />
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import { Loader } from "lucide-react";
 import { Context } from "../CONTEXT/ContextProvider";
+import { loginSession } from "../lib/server";
 
 export default function Login({ dict, locale }) {
   const [email, setemail] = useState("");
@@ -40,6 +41,8 @@ export default function Login({ dict, locale }) {
       toast.success(data.message);
       const token = data.token;
       
+      const res= await loginSession('login', token);
+      console.log(res,'login data about user ')
       if (!token) {
         throw new Error("Token not found in response");
       }
@@ -65,12 +68,12 @@ export default function Login({ dict, locale }) {
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-100 via-primary-50 to-blue-100 px-4">
+    <div className="min-h-screen  flex items-center justify-center bg-gradient-to-br from-primary-100 via-primary-50 to-blue-100 px-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.5, y: 100 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 1.2, ease: "easeOut" }}
-        className="w-[50%] flex items-center justify-center"
+        className="md:w-[50%] w-full flex items-center justify-center"
       >
         <div className="w-full max-w-md bg-white shadow-xl rounded-2xl p-10 space-y-8 border border-primary-600">
           <h2 className="text-3xl font-bold text-center text-primary-700">

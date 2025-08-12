@@ -6,7 +6,11 @@ const sendCertificate = require("../utils/sendCertificate")
 
 
 const createQuiz=async(req,res,next) =>{
-    const {title}=req.body
+ const { title } = req.body;
+if (!title || title.trim() === "") {
+  return next(errorHandler("Title is required", 400));
+}
+
     try {
         const {playlistId}=req.params
         const playlist=await PlayList.findById(playlistId)
@@ -16,7 +20,7 @@ const createQuiz=async(req,res,next) =>{
             return next(errorHandler("playlist not found",404)) 
         }
         const quiz=await Quiz.create({title,playList:playlist._id})
-        quiz.save()
+        
         playlist.quizzes.push(quiz._id)
        
         

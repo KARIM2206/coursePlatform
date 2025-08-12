@@ -1,13 +1,15 @@
-import { Collapse, Button, List, Avatar, Typography, Space, Tag, Card, Popconfirm } from 'antd';
-import { PlayCircleOutlined, FileTextOutlined, PlusOutlined, EditOutlined, DeleteOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { useState } from 'react';
 import QuizSection from './QuizSection';
 import { LogIn } from 'lucide-react';
-import { FiVideo } from 'react-icons/fi';
+import { FiPlus, FiVideo } from 'react-icons/fi';
+import NoData from './NoData';
+import PlaylistQuizList from './PlaylistQuizList';
+import PlaylistVideoList from './PlaylistVideoList';
+import PlaylistVideoListTeacherControll from './PlaylistVideoListTeacherControll';
+import PlaylistQuizModelTeacherControll from './PlaylistQuizModelTeacherControll';
 
-const { Panel } = Collapse;
-const { Text, Title } = Typography;
+
 
 const PlaylistSection = ({
   playlist,
@@ -21,7 +23,12 @@ onAddVideo,
   onDeleteVideo,
   onEditQuiz,
   onDeleteQuiz,
-onAddQuestion
+onAddQuestion,
+openAddQuestionModel,
+  setOpenAddQuestionModel,
+editQuestion,
+setQuizModalVisible
+
 }) => {
   const [activeRows, setActiveRows] = useState(['videos']); // Default to videos open
   const [isOpenVideo,setIsOpenVideo]=useState(true) 
@@ -34,185 +41,52 @@ console.log(playlist?.quizzes);
   };
 
   return (
-    <Card 
-      title={playlist.title}
-      extra={
-        <Button 
-          type="primary" 
-          icon={<PlusOutlined />}
-          onClick={() => onAddQuiz(playlist._id)}
-        >
-          Add Quiz
-        </Button>
-      }
-      bordered={false}
-      className="playlist-card"
-      style={{ marginBottom: 24 }}
-    >
-
-      <Collapse
-        bordered={false}
-        activeKey={activeRows}
-        onChange={handleRowChange}
-        expandIconPosition="end"
-        className="playlist-collapse"
-      >
-        <div className='p-4 flex gap-4 items-center'>
-          <div className='relative'>
-              <div className='flex items-center gap-1 hover:text-blue-600'>
-            <FiVideo />
-          <button className={`font-extrabold  `} onClick={()=>{
-            setIsOpenQuiz(false)
-            setIsOpenVideo(true)
-          }}>Video</button>
-          </div>
-          {/* <div className={`w-full absolute bottom-0 h-1 rounded-sm  mt-1   ${isOpenVideo?' bg-blue-400 ':'bg-transparent'}`}></div> */}
+    <div>
+<section className='flex flex-col gap-4 p-8 bg-white rounded-lg shadow-md'>
+<div className='flex items-center justify-between mb-4 bg-white border-b-2 border-blue-400 p-4 rounded-lg'>
+  <h3>{playlist.title}</h3>
+  <button className='bg-blue-600 text-white px-4 flex gap-2 py-2 rounded'><FiPlus /><span className='hidden md:inline'>Add Quiz</span></button>
 </div>
-         <div className={`relative flex flex-col gap-2 ${isOpenQuiz?'text-blue-600':''}`}>
-          <div className='flex items-center gap-1 hover:text-blue-600 '>
-          <QuestionCircleOutlined />
-               <button className={`font-extrabold  `} onClick={()=>{
-            setIsOpenQuiz(true)
-            setIsOpenVideo(false)
-          }}>Quiz</button>  
-          </div>
-     
-          {/* <div className={`w-full absolute bottom-0 h-1 rounded-sm    ${isOpenQuiz?' bg-blue-400 ':'bg-transparent'}`}></div> */}
-</div>
-        </div>
-        {/* Videos Section */}
-      { isOpenVideo&& <Panel
-          header={
-            <Space>
-              <PlayCircleOutlined style={{ color: '#1890ff' }} />
-              <Text strong>Videos</Text>
-              <Tag color="blue">{playlist.videos?.length || 0}</Tag>
-            </Space>
-          }
-          key="videos"
-          extra={
-            <Button 
-              size="small" 
-              type="text" 
-              icon={<PlusOutlined />}
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddVideo(playlist._id);
-                // Add your add video handler here
-              }}
-            />
-          }
-        >
-          {playlist.videos?.length > 0 ? (
-            <List
-              dataSource={playlist.videos}
-              renderItem={(video) => (
-                <List.Item 
-                  key={video._id}
-                  actions={[
-                    <Button 
-                      type="text" 
-                      icon={<EditOutlined />} 
-                      onClick={() => onEditVideo(video,video._id)}
-                    />,
-                    <Popconfirm
-                      title="Are you sure you want to delete this video?" 
-                      onConfirm={() => onDeleteVideo(video._id)}
-                      okText="Yes" 
-                      cancelText="No"
-                      >
-                       <Button 
-                      type="text" 
-                      danger 
-                      icon={<DeleteOutlined />} 
-                  
-                    />
-                    </Popconfirm>
-                   ,
-                  ]}
-                >
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar
-                        shape="square"
-                        size={64}
-                        src={
-                          video.poster
-                            ? `http://localhost:5000/${video.poster?.replace(/..\//, '')}`
-                            : null
-                        }
-                        icon={<PlayCircleOutlined />}
-                        style={{ backgroundColor: '#f0f2f5' }}
-                      />
-                    }
-                    title={
-                      <Link
-                        href={`http://localhost:4000/${locale}/dashboard/course/${courseId}/playlist/${playlist._id}/video/${video._id}`}
-                        target="_blank"
-                      >
-                        {video.title}
-                      </Link>
-                    }
-                    description={
-                      <Text ellipsis={{ tooltip: video.description }}>
-                        {video.description || 'No description available'}
-                      </Text>
-                    }
-                  />
-                </List.Item>
-              )}
-            />
-          ) : (
-            <div style={{ textAlign: 'center', padding: 16 }}>
-              <Text type="secondary">No videos added yet</Text>
-            </div>
-          )}
-        </Panel>}
+<div className='flex items-center gap-2 mb-4 bg-white p-4 rounded-lg'>
+  <div className={`flex items-center gap-2 cursor-pointer ${activeRows.includes('videos') ? 'text-blue-600' : ''}`} 
+  onClick={() => handleRowChange(['videos'])}><span>Videos</span>  <span className={`${activeRows.includes('videos') ? 'text-blue-600' : ''} border-blue-600 border-2 px-1 rounded-lg`}>{playlist.videos?.length || 0} </span></div>
+  <div className={`flex items-center cursor-pointer gap-2 ${activeRows.includes('quizzes') ? 'text-blue-600' : ''}`} onClick={() => handleRowChange(['quizzes'])}><span>Quizzes</span>  <span className={`${activeRows.includes('quizzes') ? 'text-blue-600' : ''} border-blue-600 border-2 px-1 rounded-lg`}>{playlist.quizzes?.length || 0} </span></div>
 
-        {/* Quizzes Section */}
-       {isOpenQuiz&& <Panel
-          header={
-            <Space>
-              <FileTextOutlined style={{ color: 'transparent' }} />
-              <Text strong>Quizzes</Text>
-              <Tag color="blue">{playlist.quizzes?.length || 0}</Tag>
-            </Space>
-          }
-          key="quizzes"
-          extra={
-            <Button 
-              size="small" 
-              type="text" 
-              icon={<PlusOutlined />}
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddQuiz(playlist._id);
-                // Add your add quiz handler here
-              }}
-            />
-          }
-        >
-          {playlist.quizzes?.length > 0 ? (
-           <QuizSection quizzes={playlist.quizzes}  onAddQuestion={onAddQuestion} onDeleteQuiz={onDeleteQuiz}
+</div>
+{activeRows.includes('videos')&&(
+  <div>
+           <div className={`flex items-center gap-2 text-blue-600 rounded-lg`}  >
+        <FiVideo size={20}/>
+        <span>Videos</span>  </div>
+{  playlist.videos?.length !== 0  ? (
+playlist.videos?.map((video) => (
+  <PlaylistVideoListTeacherControll onEditVideo={onEditVideo} onDeleteVideo={onDeleteVideo} key={video._id} videos={video} locale={locale} courseId={courseId} playlistId={playlist._id} />
+))
+ 
+  ):(
+   <NoData data={'Videos'}/>
+  )}
+  </div>
+)
+}
+{activeRows.includes('quizzes')&&
+(  playlist.quizzes?.length !== 0 ? (
+
+ 
+ 
+ <QuizSection quizzes={playlist.quizzes}  onAddQuestion={onAddQuestion} onDeleteQuiz={onDeleteQuiz}
             onDeleteQuestion={onDeleteQuestion} onEditQuestion={onEditQuestion}
-            onEditQuiz={onEditQuiz}/>
-          ) : (
-            <div style={{ textAlign: 'center', padding: 16 }}>
-              <Text type="secondary">No quizzes added yet</Text>
-              <div style={{ marginTop: 8 }}>
-                <Button
-                  type="dashed"
-                  icon={<PlusOutlined />}
-                  onClick={() => onAddQuiz(playlist._id)}
-                >
-                  Create First Quiz
-                </Button>
-              </div>
-            </div>
-          )}
-        </Panel>}
-      </Collapse>
-    </Card>
+            onEditQuiz={onEditQuiz} questionModelVisable={openAddQuestionModel} setQuizModalVisible={setQuizModalVisible} setQuestionModalVisible={setOpenAddQuestionModel} />
+
+ 
+  ):(
+   <NoData data={'Quizzes'}/>
+  ))
+}
+</section>
+
+
+    </div>
   );
 };
 

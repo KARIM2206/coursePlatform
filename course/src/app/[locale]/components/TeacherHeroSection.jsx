@@ -72,6 +72,7 @@ const router=useRouter()
                 whileTap={{ scale: 0.98 }}
                 className="bg-white text-blue-600 border-2 padding-input border-blue-200 px-8 py-3.5 rounded-xl font-semibold hover:bg-blue-50 hover:border-blue-300 transition-all duration-300 flex items-center gap-2"
                 aria-label="عرض كل الدورات"
+                 onClick={() => router.push (`/${locale}/dashboard/mycourses`)}
               >
                 <span>عرض كل الدورات</span>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

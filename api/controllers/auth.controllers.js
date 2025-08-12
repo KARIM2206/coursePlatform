@@ -4,6 +4,24 @@ let  errorHandler  = require("../utils/error");
 let bcrypt = require("bcrypt");
 const path=require('path')
 const fs=require('fs')
+const UAParser = require('ua-parser-js');
+const UserSession = require("../models/userSessionModel");
+const { default: mongoose } = require("mongoose");
+// دالة محسنة لتحليل User-Agent
+const parseUserAgent=(userAgent) => {
+  let parseUserAgent = new UAParser(userAgent);
+  let result = parseUserAgent.getResult();
+  let deviceType = result.device.type ;
+  deviceType=deviceType== "mobile" ? "Mobile" : deviceType === "tablet" ? "Tablet" : "Desktop";
+  let browser=result.browser.name || "unknown";
+  let os=result.os.name || "unknown";
+  let deviceName = result.device.vendor || "unknown";
+  return { deviceType, browser, os, deviceName };
+
+}
+
+  // const UserSession = require('../models/UserSession');
+
 let signup = async (req, res, next) => {
   let { name, email, password , role='student'} = req.body;
   
@@ -82,6 +100,7 @@ const signin = async (req, res, next) => {
       { id: user.id, password, email,role:user.role },
       process.env.JWT_SECRET
     );
+    // const cart=
     res.json({ token ,ok :true,data:user ,   message: "signin  successfully",
      ok:true,});
   } catch (error) {
@@ -211,4 +230,109 @@ fs.writeFileSync(filePath, req.file.buffer);
       return next(errorHandler(error, 500));
     }
   }
-module.exports = { signup, signin,upload_avatar,getUser ,updateAvatar,updateUser};
+
+
+
+
+// تعديل دالة logSession
+logSession = async (req, res,next) => {
+  try {
+    const userAgent = req.headers['user-agent'];
+    const { deviceType, browser, os, deviceName } = parseUserAgent(userAgent);
+    
+    const sessionData = {
+      userId: req.user.id,
+      action: req.body.action,
+      deviceType,
+      browser,
+      os,
+      deviceName,
+    };
+
+    const newSession = await UserSession.create(sessionData);
+    
+    res.status(201).json({
+      success: true,
+      data: newSession
+    });
+  } catch (err) {
+ return next(errorHandler(err, 500));
+  }
+};
+
+// الحصول على إحصائيات الدخول/خروج
+getSessionStats = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    
+    // إحصائيات اليوم
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const dailyStats = await UserSession.aggregate([
+    {
+    $match: {
+      userId: new mongoose.Types.ObjectId(userId),
+      timestamp: { $gte: today }
+    }
+  },
+      {
+        $group: {
+          _id: '$action',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+    
+    // إحصائيات الأسبوع
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+const weeklyStats = await UserSession.aggregate([
+  {
+    $match: {
+      userId:new mongoose.Types.ObjectId(userId),
+      timestamp: { $gte: weekAgo }
+    }
+  },
+      {
+        $group: {
+          _id: '$action',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+    
+    // إحصائيات الأجهزة والمتصفحات
+    const deviceStats = await UserSession.aggregate([
+      {
+        $match: { userId:new mongoose.Types.ObjectId (userId )}
+      },
+      {
+        $group: {
+          _id: {
+            deviceType: '$deviceType',
+            browser: '$browser',
+            os: '$os',
+            deviceName: '$deviceName'
+          },
+
+      
+          count: { $sum: 1 }
+
+        }
+      }
+    ]);
+    
+    res.status(200).json({
+      success: true,
+      data: {
+        daily: dailyStats,
+        weekly: weeklyStats,
+        devices: deviceStats
+      }
+    });
+  } catch (err) {
+   return next(errorHandler(err, 500));
+  }
+};
+module.exports = { signup, signin,upload_avatar,getUser ,updateAvatar,updateUser,logSession,getSessionStats};

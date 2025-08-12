@@ -78,7 +78,7 @@ export default function Hero() {
           </div>
 
           {/* Right Content */}
-          <div className="w-[37.8%] md:pr-[0px] sm:pr-[10%] sm:w-[68.4%]
+          <div className="md:w-[37.8%]  w-[84.4%] md:pr-[0px] sm:pr-[10%] sm:w-[68.4%]
            mt-[70px] ml-[21%] relative z-10 ">
             <div className="relative w-full pt-[117.86%]
              rounded-3xl overflow-hidden shadow-xl">
@@ -98,9 +98,9 @@ export default function Hero() {
  
 <div
   className="bg-white shadow-[0_0_69px_0_rgba(112,112,112,0.25)]
-   rounded-[14px_14px_30px_14px] p-[16px_24px_12px] w-[262px] absolute z-[2] left-[-34.33%] bottom-[18.7%]"
+   rounded-[14px_14px_30px_14px] p-[16px_24px_12px] w-[142px] md:w-[262px] absolute z-[2] left-[-42.33%]  sm:left-[-30.33%] bottom-[18.7%]"
 >
-  <p className="first-line:font-poppins text-[20px] font-semibold leading-[1.5] text-center">
+  <p className="first-line:font-poppins text-[14px] sm:text-[20px] font-normal md:font-semibold leading-[1.1] sm:leading-[1.5] text-center">
     Learn from the best instructors globally
   </p>
   <div
@@ -114,14 +114,13 @@ export default function Hero() {
     {[1, 2, 3, 4].map((i) => (
       <div
         key={i}
-        className="w-[50px] h-[50px] rounded-full overflow-hidden 
-        flex-shrink-0 border-[3px] border-white -ml-[21px] first-of-type:ml-0">
+        className="sm:w-[50px] sm:h-[50px] rounded-full overflow-hidden 
+        flex-shrink-0 border-[3px] border-white w-[22.5px] h-[22.5px] -ml-[11px]  sm:-ml-[21px] first-of-type:ml-0 relative">
 
         <Image
           src={`/images/avatar.jpg`}
           alt={`Instructor ${i}`}
-          width={48}
-          height={48}
+      fill
           className="w-full h-full object-cover"
         />
       </div>

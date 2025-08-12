@@ -1,79 +1,79 @@
 'use client'
-import { List, Avatar, Button } from 'antd'
-import { PlayCircleOutlined } from '@ant-design/icons'
-import Link from 'next/link'
+import Link from 'next/link';
+import Image from 'next/image';
+import { FiPlayCircle } from 'react-icons/fi';
+import { useRouter } from 'next/navigation';
+import NoData from './NoData';
+import { motion } from 'framer-motion';
 
-/**
- * PlaylistVideoList
- * - videos: array of video objects
- * - locale: current locale
- * - courseId: course id
- * - playlistId: playlist id
- * - currentVideoId: (اختياري) id الفيديو الحالي (لتمييزه)
- * - onVideoSelect: (اختياري) دالة عند اختيار فيديو (للتحكم في التنقل)
- */
 const PlaylistVideoList = ({
   videos = [],
   locale,
   courseId,
   playlistId,
   currentVideoId,
-  onVideoSelect,
-  isSmall
-}) => (
-  <List
-    dataSource={videos}
-    renderItem={video => {
-      const isCurrent = currentVideoId && video._id === currentVideoId
-      return (
-        <List.Item
+  isEnroll
+}) => {
+  const router = useRouter();
+
+  return (
+    <motion.div
+    initial={{ opacity: 0, y: -20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
+    
+     className="space-y-4 mb-2">
+      {
+      videos?.length>0?videos.map((video) => (
+        <div
           key={video._id}
-          className={`transition rounded-lg   ${isCurrent ? 'bg-gray-200' : 'hover:bg-blue-50'}`}
-          style={{ cursor: 'pointer' }}
-          onClick={() => {
-            if (onVideoSelect) onVideoSelect(video._id)
-          }}
+          className={`flex justify-between  items-center cursor-pointer px-4 py-3 rounded-xl shadow-sm border transition-all 
+            ${video._id === currentVideoId&&isEnroll ? 'bg-blue-100 border-blue-400 cursor-pointer' : 'hover:bg-blue-50  border-gray-200'} `}
+          onClick={() =>
+            router.push(`/${locale}/dashboard/course/${courseId}/playlist/${playlistId}/video/${video._id}`)
+          }
         >
-          <div className="flex items-center px-2 justify-between w-full">
-            <Avatar
-              shape="square"
-              src={
-                video.poster
-                  ? `http://localhost:5000/${video.poster?.replace(/..\//, '')}`
-                  : undefined
-              }
-              icon={<PlayCircleOutlined />}
-              size={64}
-              className='flex-shrink-0'
-            />
-         
-            {!isSmall && (
-                   <div className="flex-1">
+          {/* Left: Thumbnail + Title */}
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 shrink-0">
+              <Image
+                src={`http://localhost:5000/${video.poster}`}
+                alt={video.title}
+                width={56}
+                height={56}
+                className="rounded-full object-cover w-full h-full border"
+              />
+            </div>
+            <div className="text-gray-800 font-medium text-sm md:text-base">
               <Link
-                href={`http://localhost:4000/${locale}/dashboard/course/${courseId}/playlist/${playlistId}/video/${video._id}`}
-                className={`text-lg font-medium ${isCurrent ? 'text-blue-700' : 'hover:text-blue-600'}`}
+                href={`/${locale}/dashboard/course/${courseId}/playlist/${playlistId}/video/${video._id}`}
+                className={`hover:underline ${isEnroll==true?'pointer-events-none':'cursor-pointer'} `}
+                
               >
                 {video.title}
               </Link>
-              <div className="text-gray-500 text-sm">
-                {video.description ? video.description.slice(0, 40) : 'Video content'}
-              </div>
             </div>
-            )}
-         
-            <Button
-              type={isCurrent ? 'default' : 'primary'}
-              icon={<PlayCircleOutlined />}
-              href={`http://localhost:4000/${locale}/dashboard/course/${courseId}/playlist/${playlistId}/video/${video._id}`}
-              disabled={isCurrent}
-            >
-              {isCurrent ? 'تشاهد الآن' : 'مشاهدة'}
-            </Button>
           </div>
-        </List.Item>
-      )
-    }}
-  />
-)
 
-export default PlaylistVideoList
+          {/* Right: Watch Button */}
+      {
+        isEnroll?  <Link target='_blank'
+            href={`/${locale}/dashboard/course/${courseId}/playlist/${playlistId}/video/${video._id}`}
+            className="flex items-center cursor-pointer gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition"
+          >
+            <FiPlayCircle className="w-5 h-5" />
+            <span>Watch</span>
+          </Link> : <div></div>
+      }
+        
+        </div>
+        
+      ))
+      :
+      <NoData data={'videos'}/>
+    }
+    </motion.div>
+  );
+};
+
+export default PlaylistVideoList;

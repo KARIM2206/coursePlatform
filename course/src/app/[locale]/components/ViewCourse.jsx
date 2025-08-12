@@ -3,24 +3,20 @@ import { use, useContext, useEffect, useState } from 'react'
 import { Context } from '../CONTEXT/ContextProvider'
 import Image from 'next/image'
 import { 
-  Skeleton, Card, Tag, Button, message, Divider, Typography, 
-  Modal, Collapse, Space, List, Avatar, Table,
-  Form
+  Skeleton
 } from 'antd'
-import { 
-  DollarOutlined, UserOutlined, EyeInvisibleOutlined, 
-  PlayCircleOutlined, OrderedListOutlined, LinkOutlined
-} from '@ant-design/icons'
+
 import { toast } from 'react-toastify'
 import Link from 'next/link'
 import CoursePlaylists from './CoursePlaylists'
-import { enrollCourse, getEnrollments, getQuestions, getQuiz } from '../lib/server'
+import { checkOutCourse, enrollCourse, getEnrollments, getQuestions, getQuiz } from '../lib/server'
+import StarRating from './StarRating'
+import { FiDollarSign, FiList, FiUser, FiVideo } from 'react-icons/fi'
+import { useRouter } from 'next/navigation'
 
-const { Title, Text, Paragraph } = Typography
-const { Panel } = Collapse
 
 const ViewCourse = ({ dict, locale, id }) => {
-  const [form] = Form.useForm()
+
   const { token } = useContext(Context)
   const [course, setCourse] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -28,6 +24,8 @@ const ViewCourse = ({ dict, locale, id }) => {
   const [enrollmentData, setEnrollmentData] = useState(null)
   const [playlistData, setPlaylistData] = useState([])
 const [refreshEnrollment, setRefreshEnrollment] = useState(false)
+const [productRating, setProductRating] = useState(0);
+const router=useRouter()
   const getCourse = async (id) => {
     try {
       setLoading(true)
@@ -109,23 +107,31 @@ const [refreshEnrollment, setRefreshEnrollment] = useState(false)
       console.error('Error fetching playlists:', error);
     }
   };
- const enrollCourseHandle = async (e) => {
+ const checkoutCourseHandle = async (e) => {
   e.preventDefault();
   try {
-    console.log(id, token);
+    const data=await checkOutCourse(id,token)
+    if(!data.ok){
+       toast.error(data.error);
+      throw new Error(data.error)
+     
+    }
 
-  const enrolledCourse =  await enrollCourse(id, token);
-if (!enrolledCourse.success) {
-  throw new Error(enrolledCourse.error);
-}
-    toast.success('Enrolled Successfully');
-setRefreshEnrollment(p=>!p);
+  router.push(data.url)
   } catch (error) {
-      toast.error(error.message);
-    console.error('Error enrolling course:', error);
-    throw new Error(error.message);
-  
+    
   }
+
+}
+
+ const addToCartCourseHandle = async (e) => {
+  e.preventDefault();
+  try {
+    
+  } catch (error) {
+    
+  }
+
 }
 const getEnrollmentCoursHandle=async()=>{
   try {
@@ -173,38 +179,42 @@ setEnrollmentData(enrolledCourse.enrollment)
   if (error) {
     return (
       <div className="max-w-6xl mx-auto p-4">
-        <Card className="text-center">
-          <Title level={4}>Error Loading Course</Title>
-          <Text type="danger">{error}</Text>
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-primary-700">Error Loading Course</h2>
+          <p className='text-red-500'>{error}</p>
           <div className="mt-4">
-            <Button type="primary" onClick={() => window.location.reload()}>
+            <button className="bg-white text-red-600 px-4 py-2 rounded-md" onClick={() => window.location.reload()}>
               Retry
-            </Button>
+            </button>
           </div>
-        </Card>
+        </div>
       </div>
     )
   }
 
   if (!course) {
     return (
-      <div className="max-w-6xl mx-auto p-4">
-        <Card className="text-center">
-          <Title level={4}>Course Not Found</Title>
-          <Text>The requested course could not be found.</Text>
-        </Card>
+      <div className="max-w-6xl mx-auto py-4 pl-4">
+        <div className="text-center">
+          <h2 className='text-3xl font-bold text-primary-700'>Course Not Found</h2>
+          <p>The requested course could not be found.</p>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="max-w-6xl mx-auto p-2 md:p-4">
-      {/* Main Course View */}
+    
       <div className="flex flex-col gap-4 md:gap-6">
         {/* Course Card */}
-        <Card
-          cover={
-            course.image ? (
+        <div
+          
+       
+          
+          className="shadow-lg mb-4"
+        >
+       {        course.image ? (
               <div className="relative w-full h-48 bg-primary sm:h-64 md:h-96 overflow-hidden">
                 <Image
                   src={`http://localhost:5000/${course.image}`}
@@ -216,161 +226,125 @@ setEnrollmentData(enrolledCourse.enrollment)
               </div>
             ) : (
               <div className="h-48 sm:h-64 bg-gray-200 flex items-center justify-center">
-                <Text type="secondary">No Image Available</Text>
+                <p className="text-gray-500">No Image Available</p>
               </div>
-            )
-          }
-          className="shadow-lg mb-4"
-        >
-          <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6">
+            )}
+          <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6 px-6 py-3">
             {/* Course Info */}
             <div className="flex-1 min-w-0">
-              <Title level={2} className="!mb-4">{course.title}</Title>
-              <div className="flex flex-wrap items-center gap-2 mb-4">
-                <Tag icon={<DollarOutlined />} color="green">
-                  Price: ${course.price}
-                </Tag>
-                <Tag icon={<UserOutlined />} color="blue">
-                  Instructor ID: {course.teacher}
-                </Tag>
-              </div>
-              <Divider orientation="left">Description</Divider>
-              <Paragraph className="text-gray-700 whitespace-pre-line break-words">
-                {course.description || 'No description provided'}
-              </Paragraph>
+              <h2 className="!mb-4">{course.title}</h2>
+              
+             <div className="flex items-center my-4">
+  <div className="w-[15%] border-t border-dotted border-black"></div>
+  <span className="mx-4 text-black whitespace-nowrap">Description</span>
+  <div className="flex-grow border-t border-black"></div>
+</div>
+
+              <p className="text-gray-700 whitespace-pre-line break-words">
+                {course.description?.length>100?course.description?.slice(0,100)+"...":course.description || 'No description provided'}
+              </p>
             </div>
             
-            {/* Stats Card */}
-            <div className="md:w-72 w-full flex-shrink-0">
-              <Card className="sticky top-4">
-                <Title level={4} className="mb-4 flex items-center gap-2">
-                  <OrderedListOutlined /> Course Details
-                </Title>
+            {/* Stats div */}
+            <div className="md:w-72 w-full flex-shrink-0 border-l-2 border-gray-200 px-4 shadow-lg ">
+              <div className="sticky top-4 my-2">
+                <h4  className="mb-4 flex items-center gap-2">
+                  <FiList /> Course Details
+                </h4>
                 <div className="space-y-3 mb-6">
                   <div>
-                    <Text strong>Status:</Text>
+                    <p >Status:</p>
                     <div className="mt-1">
                       {enrollmentData?.status ? (
-                        <Tag color="green">Available</Tag>
+                        <span className='text-blue-600'>Available</span>
                       ) : (
-                        <Tag color="orange">Unavailable</Tag>
+                        <span className="text-orange-600">Unavailable</span>
                       )}
                     </div>
                   </div>
-                  <div>
-                    <Text strong>Price:</Text>
+                  <div className='flex items-center gap-1 '>
+                    <span >Price:</span>
                     <div className="mt-1">
-                      <Text>${course.price}</Text>
+                      <span>${course.price}</span>
                     </div>
                   </div>
-                  <div>
-                    <Text strong>Content:</Text>
+                  <div className='flex items-center gap-1 '>
+                    <span >Content:</span>
                     <div className="mt-1">
-                      <Text>{playlistData?.length || 0} playlists</Text>
+                      <p>{playlistData?.length || 0} playlists</p>
                     </div>
                   </div>
                 </div>
-           {    !enrollmentData?.status && <Button 
-                  type="primary" 
+                <div className='w-full flex flex-col gap-2'>
+                     {    !enrollmentData?.status && <button 
+                 className='bg-blue-600 text-white px-4 py-2 rounded-md w-full hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed'
                   block
-                  onClick={enrollCourseHandle}
+                  onClick={checkoutCourseHandle}
                   disabled={!course.isPublished}
                 >
-                  Enroll Now
-                </Button>}
-              </Card>
+                  
+                  CheckOut 
+                </button>}
+                     {    !enrollmentData?.status && <button 
+                 className='bg-white text-grey-600 px-4 py-2 rounded-md w-full hover:bg-blue-700 hover:border-none  0 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed'
+                  block
+                  onClick={addToCartCourseHandle}
+                  disabled={!course.isPublished}
+                >
+                  
+                  add to cart 
+                </button>}
+                </div>
+        
+             { enrollmentData?.status && <div className="">
+      <h3 className="text-lg font-medium mb-4">Rate this product</h3>
+      <StarRating 
+        initialRating={productRating}
+        onRatingChange={(rating) => setProductRating(rating)}
+       
+        courseId={id}
+      />
+      {productRating > 0 && (
+        <p className="mt-2 text-gray-600">
+          You rated this product {productRating} star{productRating !== 1 ? 's' : ''}
+        </p>
+      )}
+    </div>}
+              </div>
             </div>
           </div>
-        </Card>
+        </div>
 
-        {/* Playlist Section */}
-        {/* <Card
-          title={
-            <div className="flex items-center gap-2">
-              <PlayCircleOutlined /> Course Content
-            </div>
-          }
-          className="shadow-lg"
-        >
-          {playlistData?.length > 0 ? (
-            <Collapse accordion>
-              {playlistData.map(playlist => (
-                <Panel 
-                  header={playlist.title} 
-                  key={playlist._id}
-                  extra={
-                    <span className="text-gray-500">
-                      {playlist.videos?.length || 0} videos
-                    </span>
-                  }
-                >
-                  <List
-                    dataSource={playlist.videos || []}
-                    renderItem={video => (
-                      <List.Item key={video._id}>
-                        <div className="flex items-center gap-4 w-full">
-                          <Avatar
-                            shape="square"
-                            src={
-                              video.poster
-                                ? `http://localhost:5000/${video.poster?.replace(/..\//, '')}`
-                                : undefined
-                            }
-                            icon={<PlayCircleOutlined />}
-                            size={64}
-                          />
-                          <div className="flex-1">
-                            <Link
-                              href={`http://localhost:4000/${locale}/dashboard/course/${id}/playlist/${playlist._id}/video/${video._id}`}
-                              className="text-lg font-medium hover:text-blue-600"
-                            >
-                              {video.title}
-                            </Link>
-                            <div className="text-gray-500 text-sm">
-                              Video content
-                            </div>
-                          </div>
-                          <Button 
-                            type="primary" 
-                            icon={<PlayCircleOutlined />}
-                            href={`http://localhost:4000/${locale}/dashboard/course/${id}/playlist/${playlist._id}/video/${video._id}`}
-                          >
-                            Watch
-                          </Button>
-                        </div>
-                      </List.Item>
-                    )}
-                  />
-                </Panel>
-              ))}
-            </Collapse>
-          ) : (
-            <div className="text-center py-8">
-              <Text type="secondary">No content available for this course yet</Text>
-            </div>
-          )}
-        </Card> */}
-     <Card
+     
+     <div
   title={
     <div className="flex items-center gap-2">
-      <PlayCircleOutlined /> Course Content
+      <FiVideo/> Course Content
     </div>
   }
   className="shadow-lg"
 >
-  {enrollmentData.status ?( playlistData?.length > 0 ? (
-    <CoursePlaylists playlistData={playlistData} locale={locale} courseId={id} single={false}/>
+  {( playlistData?.length > 0 ? (
+    <div className='flex flex-col gap-4'>
+       <CoursePlaylists playlistData={playlistData} locale={locale} courseId={id} single={false} isEnroll={enrollmentData?.status ?true:false}/>
+      
+    </div>
+   
   ) : (
     <div className="text-center py-8">
-      <Text type="secondary">No content available for this course yet</Text>
+      <p >No content available for this course yet</p>
     </div>
-  )):(
-    <div className="text-center py-8">
-      <Text type="secondary">You are not enrolled in this course</Text>
-      <Button onClick={enrollCourseHandle} >Enroll Now</Button>
-    </div>
-  )}
-</Card>
+  ))
+//   :(
+//     <div className="flex flex-col gap-4 items-center py-8">
+//       <p className='text-orange-600'>You are not enrolled in this course</p>
+//       <button onClick={enrollCourseHandle}
+//                        className='bg-blue-600 text-white px-4 py-2 rounded-md w-fit hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed'
+//  >Enroll Now</button>
+//     </div>
+//   )
+  }
+</div>
       </div>
     </div>
   )

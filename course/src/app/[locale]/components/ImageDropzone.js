@@ -1,47 +1,92 @@
-// components/ImageDropzone.js
 'use client';
 
-import { useCallback, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
+import { UploadCloud, X } from 'lucide-react';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
-export default function ImageDropzone({setImage, courseImage }) {
-  const [preview, setPreview] = useState(null);
+export default function ImageDropzone({ setFile, initialFile = null, accept = 'both' }) {
+  const [previewUrl, setPreviewUrl] = useState(initialFile);
+  const [fileType, setFileType] = useState(null);
 
-  const onDrop = useCallback((acceptedFiles) => {
-    const file = acceptedFiles[0];
-    setImage(file); // Pass the file to the parent component
-    if (file) {
-      const previewUrl = URL.createObjectURL(file);
-      setPreview(previewUrl);
-    }
-  }, []);
+  // تعيين نوع الملف المسموح به
+  const getAcceptMimeType = () => {
+    if (accept === 'image') return 'image/*';
+    if (accept === 'video') return 'video/*';
+    return 'image/*,video/*';
+  };
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: { 'image/*': [] },
-    multiple: false,
-  });
+  // لما initialFile يتغير حتى بعد أول مرة
+  useEffect(() => {
+    if (!initialFile) return;
+
+    setPreviewUrl(initialFile);
+    const ext = initialFile.split('.').pop().toLowerCase();
+    setFileType(['mp4', 'webm', 'ogg'].includes(ext) ? 'video' : 'image');
+  }, [initialFile]);
+
+  // تنظيف preview من الـ blob
+  useEffect(() => {
+    return () => {
+      if (previewUrl?.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+    setFile(file);
+    setFileType(file.type.startsWith('video') ? 'video' : 'image');
+  };
+
+  const handleRemove = () => {
+    setPreviewUrl(null);
+    setFile(null);
+    setFileType(null);
+  };
 
   return (
-    <div
-      {...getRootProps()}
-      className="border-2 border-dashed border-gray-400 p-6 text-center cursor-pointer rounded-md"
-    >
-      <input {...getInputProps()} />
-      {isDragActive ? (
-        <p>Drop the image here ...</p>
-      ) : (
-        <p>Drag & drop an image here, or click to select</p>
-      )}
+    <div>
+      <label className="font-semibold mb-1 block">Upload File</label>
+      <label className="block border-2 border-dashed p-4 rounded cursor-pointer text-center hover:border-gray-400">
+        <UploadCloud className="mx-auto mb-2 h-6 w-6 text-gray-500" />
+        <p className="text-sm text-gray-500">Click to upload {accept}</p>
+        <input
+          type="file"
+          accept={getAcceptMimeType()}
+          onChange={handleFileChange}
+          className="hidden"
+        />
+      </label>
 
-      {preview && (
-        <div className="mt-4">
-          <p className="mb-2 font-semibold">Image Preview:</p>
-          <img
-            src={preview}
-            alt="Preview"
-            className="max-w-xs max-h-60 object-contain mx-auto border rounded"
-          />
+      {previewUrl && (
+        <div className="mt-4 relative group w-fit mx-auto">
+          {fileType === 'image' ? (
+            <Image
+              src={previewUrl}
+              alt="Preview"
+              width={200}
+              height={200}
+              className="object-cover rounded-lg w-full h-32"
+            />
+          ) : (
+            <video
+              src={previewUrl}
+              controls
+              className="rounded-lg w-full h-32 object-cover"
+            />
+          )}
+          <button
+            type="button"
+            onClick={handleRemove}
+            className="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition"
+          >
+            <X size={16} />
+          </button>
         </div>
       )}
     </div>

@@ -1,8 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 const Course = require("../models/coursesModel");
+const Enrollment = require("../models/enrollmentModel");
 const errorHandler = require("../utils/error");
-const jwt =require('jsonwebtoken')
+const jwt =require('jsonwebtoken');
+const { default: mongoose } = require('mongoose');
 
 const addCourse = async (req, res, next) => {
   // اجمع كل الحقول من body
@@ -43,8 +45,7 @@ const getAllCourses = async (req, res, next) => {
      const query = keyword
       ? {
           $or: [
-            { title: { $regex: keyword, $options: "i" } },
-            { description: { $regex: keyword, $options: "i" } }
+            { title: { $regex: keyword, $options: "i" } }
           ]
         }
       : {};
@@ -54,7 +55,7 @@ const getAllCourses = async (req, res, next) => {
       // If slug is a comma-separated string, this regex will match the tag as a whole word
     }
           const totalCourses = await Course.countDocuments(query);
-      const courses = await Course.find(query).where('isPublished', true)
+      const courses = await Course.find(query).where('isPublished', true).where('category', { $ne: null })
       .skip((page - 1) * limit)
       .limit(limit)
 
@@ -130,43 +131,102 @@ const getTeacherCourses = async (req, res, next) => {
     return next(errorHandler(error, 500));
   }
 }
+const getEnrolledCoursesToStudent = async (req, res, next) => {
+  try {
+const enrollments = await Enrollment.find({ userId: req.user.id }).populate('courseId');
+
+
+const courses = enrollments
+  .map(e => e.courseId)
+//   // .filter(course => course && course._id);
+//   console.log('courses', courses);
+  
+res.status(200).json({ ok: true,courses });;
+  } catch (error) {
+    return next(errorHandler(error, 500));
+  }
+};
 const ratingCourse = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { rating } = req.body;
 
-    if (!rating || rating < 1 || rating > 5) {
-      return res.status(400).json({ ok: false, message: "Invalid rating value" });
+    // التحقق من صلاحية قيمة التقييم
+    if (!rating || typeof rating !== 'number' || rating < 1 || rating > 5) {
+      return res.status(400).json({ ok: false, message: "Invalid rating value. Must be between 1 and 5." });
     }
 
+    // البحث عن الكورس
     const course = await Course.findById(id);
     if (!course) {
-      return res.status(404).json({ ok: false, message: "Course not found" });
+      return next(errorHandler("Course not found", 404)); // ✅ لازم return next
     }
 
-    // اجعل المستخدم يستطيع التقييم مرة واحدة فقط (تحديث التقييم إذا كان موجود)
-    if (!course.rating) course.rating = [];
-    if (!Array.isArray(course.rating)) course.rating = [];
+    // التحقق من وجود category في الكورس (قبل أي تعديل)
+    if (!course.category) {
+      return res.status(400).json({ ok: false, message: "Course missing category. Please fix course data." });
+    }
 
-    const existing = course.rating.find(r => r.user?.toString() === req.user.id);
-    if (existing) {
-      existing.value = rating;
+    // تحديث أو إضافة التقييم
+    const existingIndex = course.rating.findIndex(r => r.user.toString() === req.user.id);
+    if (existingIndex !== -1) {
+      course.rating[existingIndex].value = rating;
     } else {
       course.rating.push({ user: req.user.id, value: rating });
     }
 
-    // احسب المتوسط الجديد
-    const avg =
-      course.rating.length > 0
-        ? course.rating.reduce((acc, r) => acc + r.value, 0) / course.rating.length
-        : 0;
+    // حساب المتوسط الجديد
+    const totalRatings = course.rating.reduce((acc, r) => acc + r.value, 0);
+    const avg = course.rating.length > 0 ? totalRatings / course.rating.length : 0;
 
-    course.rate = Number(avg.toFixed(2));
+    course.rate = Number.isNaN(avg) ? 0 : Number(avg.toFixed(2));
+
     await course.save();
 
-    res.status(200).json({ ok: true, message: "Rating added successfully", course });
+    res.status(200).json({
+      ok: true,
+      message: "Rating added/updated successfully",
+      course,
+    });
+
   } catch (error) {
     return next(errorHandler(error, 500));
   }
 };
-module.exports = { addCourse, getAllCourses,getteacherSingleCourse,ratingCourse, getSingleCourse, updateCourse, deleteCourse, getTeacherCourses };
+
+const getStudentRating= async (req, res, next) => {
+  try {
+    const {courseId}=req.params;
+const course = await Course.findById(courseId);
+
+if (!course || !Array.isArray(course.rating) || course.rating.length === 0) {
+  return next(errorHandler("Course not found or no ratings yet", 404));
+}
+
+const rating = course.rating.find(r => r.user.toString() === req.user.id);
+const rateValue=rating?.value || 0
+res.status(200).json({ ok: true, rateValue });
+  } catch (error) {
+    return next(errorHandler(error, 500));
+  }
+}
+const getAvrageRating = async (req, res, next) => {
+  try {
+    const { courseId } = req.params;
+    const course = await Course.findById(courseId);
+    let ratingAvg = 0;
+    if (!course || !Array.isArray(course.rating) ){
+      return res.status(404).json({ ok: false, message: "Course not found or no ratings yet" });
+    }
+if (course.rating.length === 0) {
+      ratingAvg = 0;
+    }
+    ratingAvg = course.rating.reduce((acc, r) => acc + (r.value || 0), 0) / course.rating.length;
+
+    res.status(200).json({ ok: true, ratingAvg: Number(ratingAvg.toFixed(2)) });
+  } catch (error) {
+    next(errorHandler(error, 500));
+  }
+};
+module.exports = { addCourse, getAllCourses,getteacherSingleCourse,ratingCourse, getStudentRating, getAvrageRating,
+  getEnrolledCoursesToStudent, getSingleCourse, updateCourse, deleteCourse, getTeacherCourses };

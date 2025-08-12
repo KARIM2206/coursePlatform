@@ -5,9 +5,9 @@ import SidebarStudentLink from './SidebarStudentLinkt'
 
 const links = [
   { href: '', label: 'profile' },
-  { href: 'courses', label: 'courses' },
+  { href: 'my-courses', label: 'my-courses' },
   { href: 'wishlist', label: 'wishlist' },
-  { href: 'secure', label: 'security and time of login and log out' },
+  { href: 'pervicy', label: 'security and time of login and log out' },
   { href: 'watchlist', label: 'watchlist' },
   { href: 'resultOfQuiz', label: 'results' },
 ]

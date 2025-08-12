@@ -15,7 +15,7 @@ console.log(isActive);
   return (
     <Link
       href={`/${locale}/student/${link}`}
-      className={` border-gray-300 w-full whitespace-nowrap 
+      className={` border-gray-300 w-full md:whitespace-nowrap 
         border-2 px-2 py-3 rounded-xl hover:bg-blue-400 hover:scale-105
         ${isActive==true? 'bg-blue-600 text-white' : ''}
         hover:text-white transition-transform duration-300`}

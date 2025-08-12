@@ -6,15 +6,18 @@ import { FiLoader } from 'react-icons/fi'
 import { toast } from 'react-toastify'
 import CourseCard from './CourseCard'
 import { motion } from 'framer-motion'
+import { getAllCourses } from '../lib/server'
+import About from './About'
 
 
 
 const DisplayCourse = ({ locale, dict }) => {
-  const { token } = useContext(Context)
+  const { token,user } = useContext(Context)
   const [courses, setCourses] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-
+const limit = 99999
+const [skip,setSkip]=useState(0)
   const fadeInUp = {
     hidden: { opacity: 0, y: 50 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
@@ -30,22 +33,12 @@ const DisplayCourse = ({ locale, dict }) => {
     }
   }
 
-  const getCourses = async () => {
+  const getAllCoursesData = async () => {
     try {
       setLoading(true)
       setError(null)
-      
-      const response = await fetch(`http://localhost:5000/api/course/all`, {
-        method: 'GET',
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || 'Failed to fetch courses')
-      }
-
-      const data = await response.json()
+  const data=await getAllCourses(token,skip,limit,"","")    
+  
       setCourses(data.courses || [])
     } catch (error) {
       console.error('Error fetching courses:', error)
@@ -57,8 +50,8 @@ const DisplayCourse = ({ locale, dict }) => {
   }
 
   useEffect(() => {
-    getCourses()
-  }, [token]) // Re-fetch if token changes
+    getAllCoursesData()
+  }, [token]) 
 
   if (loading) {
     return (
@@ -76,7 +69,7 @@ const DisplayCourse = ({ locale, dict }) => {
         <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-lg">
           {error}
           <button 
-            onClick={getCourses}
+            onClick={getAllCoursesData}
             className="ml-4 px-4 py-2 bg-red-100 hover:bg-red-200 rounded-md text-red-700"
           >
             Retry
@@ -88,7 +81,7 @@ const DisplayCourse = ({ locale, dict }) => {
         <div className="text-center py-12">
           <p className="text-gray-500 text-lg">No courses available at the moment</p>
           <button
-            onClick={getCourses}
+            onClick={getAllCoursesData}
             className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
             Refresh
@@ -100,14 +93,17 @@ const DisplayCourse = ({ locale, dict }) => {
         initial="hidden"
         animate="visible"
         variants={staggerContainer}
+        id='list'
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
       >
         {courses.map((course, index) => (
           <motion.div key={course._id} variants={fadeInUp} className="course-card">
-            <CourseCard course={course} locale={locale} dict={dict} />
+            <CourseCard course={course} locale={locale} dict={dict} courseId={course._id} isAddToCart={course?.subscribers?.includes(user?._id)|| course?.teacher===user?._id?false:true}/>
           </motion.div>
         ))}
       </motion.div>
+
+      <About />
     </div>
   )
 }

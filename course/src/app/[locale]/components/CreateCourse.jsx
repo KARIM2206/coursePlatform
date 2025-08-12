@@ -68,7 +68,7 @@ const {token}=useContext(Context)
       formData.append("price", price);
       formData.append("slug", slug);
        formData.append("category", category); 
-      console.log(image);
+    
       
       if (image) formData.append("image", image);
 console.log(slug);
@@ -98,6 +98,7 @@ console.log("Response Data:", data);
       setDescription("");
       setPrice("");
       setImage(null);
+     
       router.push(`/${locale}/dashboard/course/${data.course._id}`);
     } catch (error) {
       console.error("Error:", error);
@@ -114,7 +115,7 @@ console.log("Response Data:", data);
         initial={{ opacity: 0, scale: 0.5, y: 100 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 1.2, ease: "easeOut" }}
-        className="w-[50%] flex items-center justify-center"
+        className="md:w-[50%] lg:w-[60%] w-full flex items-center justify-center"
       >
         <div className="w-full max-w-md bg-white shadow-xl rounded-2xl p-10 space-y-8 border border-primary-600">
           <h2 className="text-3xl font-bold text-center 
@@ -199,7 +200,7 @@ console.log("Response Data:", data);
     Separate keywords with commas. Example: <span className="italic">javascript, web, backend</span>
   </p>
 </div>
-          <ImageDropzone  setImage={setImage} courseImage={translate.courseImage} />
+          <ImageDropzone  setFile={setImage} accept="image" />
             <button
               type="submit"
               className="w-full bg-primary-600 hover:bg-primary-700 text-white py-2.5 rounded-lg font-semibold transition duration-300 shadow flex items-center justify-center"

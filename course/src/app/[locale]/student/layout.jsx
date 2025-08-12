@@ -26,7 +26,7 @@ const path=pathname.split('/')[2];
       </div>
     </div>
 
-       <div className='p-8 relative w-full h-full mb-4 flex z-20 gap-4 md:gap-8 lg:gap-12 '>
+       <div className='md:p-8 p-2 relative w-full h-full flex-col lg:flex-row mb-4 flex z-20 gap-4 md:gap-8 lg:gap-12 '>
     {/* Sidebar على اليسار في الشاشات الكبيرة، فوق في الشاشات الصغيرة */}
     <div className='w-full lg:w-1/4 mb-6 lg:mb-0'>
       <SidebarStudintDisplayLinks locale={locale} path={path}/>

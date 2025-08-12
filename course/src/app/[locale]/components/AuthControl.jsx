@@ -1,39 +1,51 @@
 'use client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FiHome, FiLogOut, FiLoader } from 'react-icons/fi';
 
 import { useContext } from 'react';
 import { Context } from '../CONTEXT/ContextProvider';
 import { toast } from 'react-toastify';
+import { loginSession } from '../lib/server';
 
 const AuthControl = ({ locale, dashboard, logout ,role}) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const { logout: contextLogout } = useContext(Context); // Using context logout if available
+  const { logout: contextLogout,token,setRefresh } = useContext(Context); // Using context logout if available
+  // useEffect(()=>{
+  //   if(!token){
+  //     setLoading(true);
+  //   }
+  // },[token])
 
   const handleLogout = async () => {
     try {
       setLoading(true);
-      
+     
+     const response =  await loginSession('logout', token);
+     console.log(response);
+     
       // Clear local storage
+      if(response.success){
       localStorage.removeItem('login-token');
-      
+      setRefresh(true);
+      }
       // If using context, call the context logout function
       if (contextLogout) {
         await contextLogout();
       }
       console.log(role);
+            // Redirect to login page
+            setLoading(false)
+      router.push(`/${locale}/login`);
       
       // Show success message
       toast.success('Logged out successfully');
       
-      // Redirect to login page
-      router.push(`/${locale}/login`);
+
       
-      // Optional: Refresh to ensure clean state
-      setTimeout(() => window.location.reload(), 500);
+      
       
     } catch (error) {
       console.error('Logout error:', error);

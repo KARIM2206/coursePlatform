@@ -20,7 +20,7 @@ const enrollmentSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: ['active', 'pending', 'cancelled'],
-    default: 'active'
+    default: 'pending'
   }
 });
 

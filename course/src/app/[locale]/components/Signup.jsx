@@ -74,7 +74,7 @@ toast.success("Account created successfully!")
         initial={{ opacity: 0, scale: 0.5, y: 100 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 1.2, ease: "easeOut" }}
-        className="w-[50%] flex items-center justify-center"
+        className="md:w-[50%] w-full flex items-center justify-center"
       >
         <div className="w-full  max-w-md bg-white shadow-xl rounded-2xl  p-10 space-y-8 border border-primary-600">
           <h2 className="text-3xl font-bold text-center text-primary-700">{translate.title}</h2>

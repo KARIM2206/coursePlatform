@@ -1,111 +1,46 @@
-import { CheckOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import { Card, Tag, Space, Typography, Popconfirm, Button } from 'antd';
-import React from 'react';
-import { FiDelete } from 'react-icons/fi';
+'use client'
 
-const { Text, Title } = Typography;
+import React from 'react';
+import {  FiEdit, FiTrash } from 'react-icons/fi';
+import ControlDeletemodel from './ControlDeletemodel';
+
+
 
 const QuestionSection = ({ question, qIndex,onEditQuestion,onDeleteQuestion }) => {
+  const [isDeleting, setIsDeleting] = React.useState(false);
   return (
-    <Card 
-      className="question-card"
-      style={{
-        marginBottom: 16,
-        borderRadius: 12,
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
-        transition: 'all 0.3s ease',
-      
-      }}
-      hoverable
-    >
-      <div className="question-header flex items-center px-2 justify-between w-full " style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
-       <div className='flex items-center'>
-        <div className="question-index" style={{
-          width: 32,
-          height: 32,
-          backgroundColor: '#1890ff',
-          color: 'white',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginRight: 16,
-          flexShrink: 0
-        }}>
-          <Text strong style={{ color: 'white' }}>{qIndex + 1}</Text>
-        </div>
-        <Title level={5} style={{ margin: 0 }}>{question.questionText}</Title>
-      </div>
-      <div className='flex items-center gap-4 '>
-    <EditOutlined className='text-blue-500 font-bold ' onClick={() => onEditQuestion(question._id, question)} />
+    <section>
+      <div className='w-full rounded-lg shadow-lg px-4 py-2 mb-4 flex flex-col gap-2'>
+     <div className='flex justify-between items-center '>
+        <div className='flex items-center gap-2 '>
+      <span className='font-bold rounded-full bg-blue-500 text-white w-8 h-8 flex items-center justify-center'>{qIndex + 1}</span>
+        <h3>{question?.questionText}</h3>
+     </div>
+     <div className='flex items-center gap-2 '>
+      <button className='text-blue-600 '><FiEdit size={20} onClick={() => onEditQuestion(question._id,question)} /></button>
+      <button className='text-red-600'  onClick={(e) =>{ e.preventDefault()
+        setIsDeleting(true)}}><FiTrash size={20} /></button>
+     </div>
+     {
+      isDeleting && (
+        <ControlDeletemodel deleteModel={onDeleteQuestion} setDeleteModel={setIsDeleting} quizId={question._id}/>
+      )}
+     </div>
    
-
-<Popconfirm 
- title="Are you sure you want to delete this question?"
-
-onConfirm={() => onDeleteQuestion(question._id)}
-okText="Yes"
-cancelText="No"
->
- <Button type="link" danger icon={<DeleteOutlined />} />
-</Popconfirm>
-</div>
-</div>
-
-      <div className="question-content" style={{ paddingLeft: 48 }}>
-        <div className="options-section" style={{ marginBottom: 16 }}>
-          <Text strong style={{ display: 'block', marginBottom: 8 }}>Options:</Text>
-          <Space size={[8, 8]} wrap>
-            {question.options.map((option, index) => (
-              <Tag 
-                key={index}
-                color={question.correctAnswer==option ? 'green' : 'default'}
-                style={{
-                  padding: '4px 12px',
-                  borderRadius: 20,
-                  border: question.correctAnswer==option? 'none' : '1px solid #d9d9d9'
-                }}
-              >
-                {question.correctAnswer==option && (
-                  <CheckOutlined style={{ marginRight: 4 }} />
-                )}
-                {option}
-              </Tag>
-            ))}
-          </Space>
+     <h4 className='font-semibold '>Options</h4>
+     <div className='flex flex-col gap-2'>
+      {question?.options?.map((option, index) => (
+        <div key={index} className={`'flex items-center gap-2' ${question.correctAnswer === option ? 'text-blue-500' : 'text-gray-800'}`}>
+          <span className='text-gray-600'>{String.fromCodePoint(65 + index)}.</span>
+          <span>{option?.length>50?option.substring(0, 50)+"...":option.substring(0, 50)}</span>
+        
         </div>
-
-        <div className="answer-section">
-          <Text strong style={{ display: 'block', marginBottom: 8 }}>Correct Answer:</Text>
-          <Space size={[8, 8]} wrap>
-            {Array.isArray(question.correctAnswer) ? (
-              question.correctAnswer.map((answer, index) => (
-                <Tag 
-                  key={index}
-                  color="green"
-                  style={{
-                    padding: '4px 12px',
-                    borderRadius: 20,
-                  }}
-                >
-                  {answer}
-                </Tag>
-              ))
-            ) : (
-              <Tag 
-                color="green"
-                style={{
-                  padding: '4px 12px',
-                  borderRadius: 20,
-                }}
-              >
-                {question.correctAnswer}
-              </Tag>
-            )}
-          </Space>
-        </div>
+      ))}
       </div>
-    </Card>
+      </div>
+
+    </section>
+   
   );
 };
 
